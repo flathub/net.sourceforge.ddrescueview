@@ -1,0 +1,45 @@
+diff --color -ur a/source/GUI.pas b/source/GUI.pas
+--- a/source/GUI.pas	2022-02-25 15:47:26.000000000 +0000
++++ b/source/GUI.pas	2025-12-02 12:56:59.712507038 +0000
+@@ -654,7 +654,7 @@
+ var
+   x, y, xs, ys, ye, iImgBlock, curBlockData, colorRowSize,
+   actBlock, numBlocks : Longint;
+-  RedMemOffs, GreenMemOffs, BlueMemOffs : Longint;
++  RedMemOffs, GreenMemOffs, BlueMemOffs, AlphaMemOffs : Longint;
+   BytePtr, PixPtr, DataPtr : PByte;
+   RawImage: TRawImage;
+   vblock, hblock, BytePerLine, BytePerPix : Longint;
+@@ -672,10 +672,12 @@
+       RedMemOffs:=RawImage.Description.RedShift div 8;
+       GreenMemOffs:=RawImage.Description.GreenShift div 8;
+       BlueMemOffs:=RawImage.Description.BlueShift div 8;
++      AlphaMemOffs:=RawImage.Description.AlphaShift div 8;
+     end else begin
+       RedMemOffs:=BytePerPix - 1 - (RawImage.Description.RedShift div 8);
+       GreenMemOffs:=BytePerPix - 1 - (RawImage.Description.GreenShift div 8);
+       BlueMemOffs:=BytePerPix - 1 - (RawImage.Description.BlueShift div 8);
++      AlphaMemOffs:=BytePerPix - 1 - (RawImage.Description.AlphaShift div 8);
+     end;
+     // populate the color row memory area for filling with bg color
+     colorRowSize:=BytePerPix*Longint(RawImage.Description.Width);
+@@ -685,6 +687,9 @@
+       (PixPtr + RedMemOffs)^ := Byte(COLOR_UNDEFINED and $ff);
+       (PixPtr + GreenMemOffs)^ := Byte((COLOR_UNDEFINED shr 8) and $ff);
+       (PixPtr + BlueMemOffs)^ := Byte((COLOR_UNDEFINED shr 16) and $ff);
++      if AlphaMemOffs > 0 then begin
++        (PixPtr + AlphaMemOffs)^ := $ff; // Byte((COLOR_UNDEFINED shr 24) and $ff);
++      end;
+     end;
+     // fill all rows with the background color row
+     BytePtr:=DataPtr;
+@@ -708,6 +713,9 @@
+         (PixPtr + RedMemOffs)^ := Byte(curBlockData and $ff);
+         (PixPtr + GreenMemOffs)^ := Byte((curBlockData shr 8) and $ff);
+         (PixPtr + BlueMemOffs)^ := Byte((curBlockData shr 16) and $ff);
++        if AlphaMemOffs > 0 then begin
++          (PixPtr + AlphaMemOffs)^ := $ff; // Byte((curBlockData shr 24) and $ff);
++        end;
+         Inc(PixPtr, BytePerPix);
+       end;
+       vblock := iImgBlock div Fhblocks; // vertical index of current block
