@@ -1,6 +1,6 @@
 app-id: net.sourceforge.ddrescueview
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.freepascal
@@ -32,13 +32,18 @@ modules:
           # Extract version from directory
           version-query: '[.platform_releases[] | select(.filename | test("ddrescueview-source-.*"))]
             | first | .filename | capture(".*\/v(?<v>[0-9.]+)\/.*") | .v'
+      - type: patch
+        path: gtk3_alpha.diff
       - type: file
         path: net.sourceforge.ddrescueview.metainfo.xml
     build-commands:
       - |
         . /usr/lib/sdk/freepascal/enable.sh
+        lazbuild --widgetset=gtk3 source/ddrescueview.lpi
+        cp source/ddrescueview source/ddrescueview-gtk3
         lazbuild source/ddrescueview.lpi
       - install -Dm755 source/ddrescueview -t ${FLATPAK_DEST}/bin
+      - install -Dm755 source/ddrescueview-gtk3 -t ${FLATPAK_DEST}/bin
       - install -Dm644 resources/linux/applications/ddrescueview.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
       - install -Dm644 net.sourceforge.ddrescueview.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo/
       - cp -R resources/linux/icons/ ${FLATPAK_DEST}/share/icons/
